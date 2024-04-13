@@ -1,0 +1,27 @@
+<resources>
+    <style name="Base.Theme.GithubUser" parent="Theme.Material3.DayNight">
+        <item name="colorPrimary">@color/primaryDark</item>
+    </style>
+
+    <style name="FloatingGeneral" parent="Widget.MaterialComponents.FloatingActionButton">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="backgroundTint">@color/white</item>
+        <item name="tint">@color/black</item>
+    </style>
+
+    <style name="constraintLayoutStyle" parent="Base.Theme.GithubUser">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">8dp</item>
+        <item name="android:background">@drawable/card_background_dark</item>
+    </style>
+
+    <style name="circleViewImageStyle" parent="Base.Theme.GithubUser">
+        <item name="android:layout_width">69dp</item>
+        <item name="android:layout_height">69dp</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="civ_border_color">@color/primaryDark</item>
+        <item name="civ_border_width">2dp</item>
+    </style>
+</resources>

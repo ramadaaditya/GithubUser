@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">GithubUserFinal</string>
+    <string name="searchbar_hint">Masukkan nama user</string>
+    <string name="username">USERNAME</string>
+    <string name="fullname">Fullname</string>
+    <string name="follower">%d</string>
+    <string name="follow">%d</string>
+    <string name="tab_text_1">Followers</string>
+    <string name="tab_text_2">Following</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="favorite">favorite</string>
+    <string name="detailUser">Detail User</string>
+    <string name="favorite_add">Ditambahkan ke Favorite</string>
+    <string name="favorite_remove">Dihapus dari Favorite</string>
+    <string name="githubuser">GithubUser</string>
+    <string name="nullable">null</string>
+</resources>
