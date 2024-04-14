@@ -20,11 +20,10 @@ import com.dicoding.githubuser.viewModel.SettingsViewModel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private val settingsViewModel: SettingsViewModel by viewModels<SettingsViewModel> {
+    private val settingsViewModel: SettingsViewModel by viewModels {
         SettingsViewModel.ViewModelFactory(SettingPreferences.getInstance(dataStore))
     }
-    private val mainViewModel by viewModels<MainViewModel>()
-
+    private val mainViewModel: MainViewModel by viewModels()
     private lateinit var adapter: ListUserAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +32,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         supportActionBar?.hide()
+        setupViews()
+        setupObservers()
+    }
+
+    private fun setupObservers() {
         settingsViewModel.getThemeSettings().observe(this) { isDarkModeActive: Boolean ->
             if (isDarkModeActive) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
@@ -43,62 +47,79 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.listUser.observe(this) { list ->
             adapter.setUserList(list)
         }
+        mainViewModel.isLoading.observe(this) {
+            showLoading(it)
+        }
+    }
 
-        val layoutManager = LinearLayoutManager(this)
-        binding.rvUserGithub.layoutManager = layoutManager
-        val itemDecoration = DividerItemDecoration(this, layoutManager.orientation)
-        binding.rvUserGithub.addItemDecoration(itemDecoration)
+    private fun setupViews() {
+        binding.apply {
+            setupSearchView()
+            setupRecyclerView()
+        }
+    }
 
+    private fun setupSearchView() {
         with(binding) {
             searchView.setupWithSearchBar(searchBar)
-            searchView
-                .editText
-                .setOnEditorActionListener { _, _, _ ->
-                    val query = binding.searchView.text.toString()
-                    mainViewModel.searchUser(query)
-                    searchBar.setText(searchView.text)
-                    binding.searchView.hide()
-                    true
-                }
+            searchView.editText.setOnEditorActionListener { _, _, _ ->
+                val query = binding.searchView.text.toString()
+                mainViewModel.searchUser(query)
+                searchBar.setText(searchView.text)
+                binding.searchView.hide()
+                true
+            }
+            setupMenu()
+        }
+    }
 
-            searchBar.inflateMenu(R.menu.search)
-            searchBar.setOnMenuItemClickListener { menuItem ->
+    private fun setupMenu() {
+        binding.searchBar.apply {
+            inflateMenu(R.menu.search)
+            setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.favorite -> {
-                        val intent = Intent(this@MainActivity, FavoriteActivity::class.java)
-                        startActivity(intent)
+                        navigateToFavoriteActivity()
                         true
                     }
 
                     R.id.theme -> {
-                        val intent = Intent(this@MainActivity, DarkTheme::class.java)
-                        startActivity(intent)
+                        navigateToDarkThemeActivity()
                         true
                     }
                     else -> false
                 }
             }
         }
+    }
+
+    private fun navigateToFavoriteActivity() {
+        startActivity(Intent(this, FavoriteActivity::class.java))
+    }
+
+    private fun navigateToDarkThemeActivity() {
+        startActivity(Intent(this, DarkTheme::class.java))
+    }
+
+
+    private fun setupRecyclerView() {
+        val layoutManager = LinearLayoutManager(this)
+        binding.rvUserGithub.layoutManager = layoutManager
+        val itemDecoration = DividerItemDecoration(this, layoutManager.orientation)
+        binding.rvUserGithub.addItemDecoration(itemDecoration)
 
         adapter = ListUserAdapter()
-        adapter.setOnItemClickCallback(object : ListUserAdapter.OnItemClickCallback {
-            override fun onItemClicked(data: ItemsItem) {
-                Intent(this@MainActivity, DetailActivity::class.java).also {
-                    it.putExtra(DetailActivity.EXTRA_USER, data.login)
-                    it.putExtra(DetailActivity.EXTRA_AVATAR, data.avatarUrl)
-                    startActivity(it)
-                }
-            }
-        })
-
-        binding.apply {
-            rvUserGithub.layoutManager = LinearLayoutManager(this@MainActivity)
-            rvUserGithub.setHasFixedSize(true)
-            rvUserGithub.adapter = adapter
+        adapter.setOnItemClickCallback { data ->
+            navigateToDetailActivity(data)
         }
+        binding.rvUserGithub.adapter = adapter
+    }
 
-        mainViewModel.isLoading.observe(this) {
-            showLoading(it)
+    private fun navigateToDetailActivity(data: ItemsItem) {
+        Intent(this, DetailActivity::class.java).apply {
+            putExtra(DetailActivity.EXTRA_USER, data.login)
+            putExtra(DetailActivity.EXTRA_AVATAR, data.avatarUrl)
+            startActivity(this)
         }
     }
 

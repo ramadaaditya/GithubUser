@@ -8,14 +8,12 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
-import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.dicoding.githubuser.R
 import com.dicoding.githubuser.adapter.SectionPagerAdapter
 import com.dicoding.githubuser.data.database.entity.UserEntity
 import com.dicoding.githubuser.databinding.ActivityDetailUserBinding
 import com.dicoding.githubuser.viewModel.DetailViewModel
-import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
 class DetailActivity : AppCompatActivity() {
@@ -24,6 +22,7 @@ class DetailActivity : AppCompatActivity() {
         DetailViewModel.ViewModelFactory.getInstance(application)
     }
 
+    private lateinit var sectionsPagerAdapter: SectionPagerAdapter
     private var isFavorite: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,26 +30,21 @@ class DetailActivity : AppCompatActivity() {
         binding = ActivityDetailUserBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setupActionBar()
+        setupViewPager()
+        setupObservers()
 
         val username = intent.getStringExtra(EXTRA_USER) ?: ""
-        val avatar = intent.getStringExtra(EXTRA_AVATAR) ?: ""
-        val bundle = Bundle()
-        bundle.putString(EXTRA_USER, username)
-
-        supportActionBar?.title = getString(R.string.detailUser)
-
-        supportActionBar?.elevation = 0F
-
         detailViewModel.getDetailUser(username)
         showLoading(true)
+    }
 
-        detailViewModel.detailUser.observe(this) {
-            showLoading(false)
-            if (it != null) {
+    private fun setupObservers() {
+        detailViewModel.detailUser.observe(this) { user ->
+            user?.let {
                 binding.apply {
                     Glide.with(this@DetailActivity)
-                        .load(avatar)
+                        .load(intent.getStringExtra(EXTRA_AVATAR))
                         .centerCrop()
                         .into(userpicture)
                     tvUsername.text = it.login
@@ -61,34 +55,30 @@ class DetailActivity : AppCompatActivity() {
             }
         }
 
-        detailViewModel.getDataByUsername(username).observe(this) {
-            isFavorite = it.isNotEmpty()
-            val favoriteUser = UserEntity(username, avatar)
-            if (it.isEmpty()) {
-                binding.fab.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        binding.fab.context,
-                        R.drawable.ic_favorite_border
-                    )
+        val username = intent.getStringExtra(EXTRA_USER) ?: ""
+
+        detailViewModel.getDataByUsername(username).observe(this) { favoriteUsers ->
+            isFavorite = favoriteUsers.isNotEmpty()
+            val fabDrawable =
+                if (isFavorite) R.drawable.ic_favorite_yellow else R.drawable.ic_favorite_border
+            val fabContentDesc = if (isFavorite) R.string.favorite_remove else R.string.favorite_add
+
+            binding.fab.setImageDrawable(
+                ContextCompat.getDrawable(
+                    binding.fab.context,
+                    fabDrawable
                 )
-                binding.fab.contentDescription = getString(R.string.favorite_add)
-            } else {
-                binding.fab.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        binding.fab.context,
-                        R.drawable.ic_favorite_yellow
-                    )
-                )
-                binding.fab.contentDescription = getString(R.string.favorite_remove)
-            }
+            )
+            binding.fab.contentDescription = getString(fabContentDesc)
 
             binding.fab.setOnClickListener {
+                val favoriteUser = UserEntity(username, intent.getStringExtra(EXTRA_AVATAR) ?: "")
                 if (isFavorite) {
                     detailViewModel.deleteDataUser(favoriteUser)
-                    Toast.makeText(this, R.string.favorite_remove, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, fabContentDesc, Toast.LENGTH_SHORT).show()
                 } else {
                     detailViewModel.insertDataUser(favoriteUser)
-                    Toast.makeText(this, R.string.favorite_add, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, fabContentDesc, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -96,24 +86,33 @@ class DetailActivity : AppCompatActivity() {
         detailViewModel.isLoading.observe(this) {
             showLoading(it)
         }
+    }
 
-        val sectionsPagerAdapter = SectionPagerAdapter(this)
+    private fun setupViewPager() {
+        val username = intent.getStringExtra(EXTRA_USER) ?: ""
+        sectionsPagerAdapter = SectionPagerAdapter(this)
         sectionsPagerAdapter.username = username
-        val viewPager: ViewPager2 = binding.viewPager
-        viewPager.adapter = sectionsPagerAdapter
-        val tabs: TabLayout = binding.tabs
-        TabLayoutMediator(tabs, viewPager) { tabLayout, position ->
+        binding.viewPager.adapter = sectionsPagerAdapter
+        TabLayoutMediator(binding.tabs, binding.viewPager) { tabLayout, position ->
             tabLayout.text = resources.getString(TAB_TITLES[position])
         }.attach()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-            }
+    private fun setupActionBar() {
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            title = getString(R.string.detailUser)
+            elevation = 0F
         }
-        return super.onOptionsItemSelected(item)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == android.R.id.home) {
+            finish()
+            true
+        } else {
+            super.onOptionsItemSelected(item)
+        }
     }
 
     private fun showLoading(isLoading: Boolean) {

@@ -21,8 +21,7 @@ class DarkTheme : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val pref = SettingPreferences.getInstance(application.dataStore)
-        val settingViewModel =
-            ViewModelProvider(this, SettingsViewModel.ViewModelFactory(pref))[SettingsViewModel::class.java]
+        val settingViewModel = ViewModelProvider(this, SettingsViewModel.ViewModelFactory(pref))[SettingsViewModel::class.java]
         settingViewModel.getThemeSettings().observe(this@DarkTheme) {
             if (it) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
@@ -38,11 +37,11 @@ class DarkTheme : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-            }
+        return if (item.itemId == android.R.id.home) {
+            finish()
+            true
+        } else {
+            super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 }

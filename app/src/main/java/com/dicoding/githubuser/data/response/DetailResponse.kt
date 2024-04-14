@@ -3,10 +3,6 @@ package com.dicoding.githubuser.data.response
 import com.google.gson.annotations.SerializedName
 
 data class DetailResponse(
-
-	@field:SerializedName("gists_url")
-	val gistsUrl: String,
-
 	@field:SerializedName("repos_url")
 	val reposUrl: String,
 

@@ -7,68 +7,80 @@ import android.view.MenuItem
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.dicoding.githubuser.R
 import com.dicoding.githubuser.adapter.FavoriteAdapter
 import com.dicoding.githubuser.data.database.entity.UserEntity
 import com.dicoding.githubuser.databinding.ActivityFavoriteUserBinding
 import com.dicoding.githubuser.viewModel.FavoriteViewModel
 
 class FavoriteActivity : AppCompatActivity() {
-    private lateinit var binding : ActivityFavoriteUserBinding
+    private lateinit var binding: ActivityFavoriteUserBinding
+    private lateinit var favoriteViewModel: FavoriteViewModel
+    private lateinit var adapter: FavoriteAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFavoriteUserBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Favorite User"
+        setupActionBar()
+        setupViewModel()
+        setupRecyclerView()
+        setupObservers()
 
+    }
 
-        val favoriteViewModel = obtainViewModel(this@FavoriteActivity)
-        favoriteViewModel.getAllFavorite().observe(this) {
-            setFavoriteData(it)
+    private fun setupObservers() {
+        favoriteViewModel.getAllFavorite().observe(this) { userEntities ->
+            setFavoriteData(userEntities)
         }
 
-        favoriteViewModel.isLoading.observe(this) {
-            showLoading(it)
+        favoriteViewModel.isLoading.observe(this) { isLoading ->
+            showLoading(isLoading)
+        }
+    }
+
+    private fun setupRecyclerView() {
+        adapter = FavoriteAdapter(emptyList())
+        adapter.setOnItemClickCallback { data ->
+            startActivity(
+                Intent(this@FavoriteActivity, DetailActivity::class.java)
+                    .putExtra(DetailActivity.EXTRA_USER, data.username)
+                    .putExtra(DetailActivity.EXTRA_AVATAR, data.avatarUrl)
+            )
+        }
+
+        binding.rvFavorite.apply {
+            layoutManager = LinearLayoutManager(this@FavoriteActivity)
+            setHasFixedSize(true)
+            adapter = this@FavoriteActivity.adapter
+        }
+    }
+
+    private fun setupViewModel() {
+        favoriteViewModel = obtainViewModel(this@FavoriteActivity)
+    }
+
+    private fun setupActionBar() {
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            title = getString(R.string.favorite_title)
         }
     }
 
     private fun setFavoriteData(userEntities: List<UserEntity>) {
-        val items = arrayListOf<UserEntity>()
-        userEntities.map {
-            val item = UserEntity(
-                username = it.username,
-                avatarUrl = it.avatarUrl,
-            )
-            items.add(item)
-        }
+        adapter.setData(userEntities)
 
-        val adapter = FavoriteAdapter(items)
-        with(binding){
-            rvFavorite.layoutManager = LinearLayoutManager(this@FavoriteActivity)
-            rvFavorite.setHasFixedSize(true)
-            rvFavorite.adapter = adapter
-        }
 
-        adapter.setOnItemClickCallback(object : FavoriteAdapter.OnItemClickCallback {
-            override fun onItemClicked(data: UserEntity) {
-                startActivity(
-                    Intent(this@FavoriteActivity,DetailActivity::class.java)
-                        .putExtra(DetailActivity.EXTRA_USER, data.username)
-                        .putExtra(DetailActivity.EXTRA_AVATAR, data.avatarUrl)
-                )
-            }
-        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            android.R.id.home -> {
-                finish()
-            }
+        return if (item.itemId == android.R.id.home) {
+            finish()
+            true
+        } else {
+            super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 
     private fun obtainViewModel(activity: AppCompatActivity): FavoriteViewModel {
@@ -76,9 +88,7 @@ class FavoriteActivity : AppCompatActivity() {
         return ViewModelProvider(activity, factory)[FavoriteViewModel::class.java]
     }
 
-
-    private fun showLoading(isLoading : Boolean){
+    private fun showLoading(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-
     }
 }
