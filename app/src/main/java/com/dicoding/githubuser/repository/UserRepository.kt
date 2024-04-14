@@ -1,36 +1,70 @@
 package com.dicoding.githubuser.repository
 
-import android.app.Application
 import androidx.lifecycle.LiveData
-import com.dicoding.githubuser.data.database.entity.UserEntity
-import com.dicoding.githubuser.data.database.room.UserDao
-import com.dicoding.githubuser.data.database.room.UserDatabase
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import com.dicoding.githubuser.data.local.entity.UserEntity
+import com.dicoding.githubuser.data.local.room.UserDao
+import com.dicoding.githubuser.data.remote.response.DetailResponse
+import com.dicoding.githubuser.data.remote.response.Item
+import com.dicoding.githubuser.data.remote.retrofit.ApiService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
-class UserRepository(application: Application) {
-    private val mUserDao: UserDao
-    private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
-
-    init {
-        val db = UserDatabase.getDatabase(application)
-        mUserDao = db.userDao()
+class UserRepository private constructor(
+    private val apiService: ApiService,
+    private val mUserDao: UserDao,
+) {
+    suspend fun searchUsers(query: String): List<Item> {
+        return withContext(Dispatchers.IO) {
+            val response = apiService.searchUser(query)
+            response.items
+        }
     }
 
-    fun getAllFavorite(): LiveData<List<UserEntity>> = mUserDao.getAllFavorite()
+    suspend fun getDetailUser(username: String): DetailResponse {
+        return withContext(Dispatchers.IO) {
+            apiService.getDetailUser(username)
+        }
+    }
 
-    fun insertUser(user: UserEntity) {
-        executorService.execute {
+    suspend fun getFollowers(username: String): List<Item> {
+        return withContext(Dispatchers.IO) {
+            apiService.getFollowers(username)
+        }
+    }
+
+    suspend fun getFollowing(username: String): List<Item> {
+        return withContext(Dispatchers.IO) {
+            apiService.getFollowing(username)
+        }
+    }
+
+    fun getAllFavorite(): Flow<List<UserEntity>> = mUserDao.getAllFavorite()
+    fun getDataByUsername(username: String): LiveData<List<UserEntity>> =
+        mUserDao.getDataByUsername(username)
+
+    suspend fun insertUser(user: UserEntity) {
+        withContext(Dispatchers.IO) {
             mUserDao.insert(user)
         }
     }
 
-    fun deleteUser(user: UserEntity) {
-        executorService.execute {
+    suspend fun deleteUser(user: UserEntity) {
+        withContext(Dispatchers.IO) {
             mUserDao.delete(user)
         }
     }
 
-    fun getDataByUsername(username: String): LiveData<List<UserEntity>> = mUserDao.getDataByUsername(username)
+    companion object {
+        @Volatile
+        private var instance: UserRepository? = null
 
+        fun getInstance(apiService: ApiService, userDao: UserDao): UserRepository {
+            return instance ?: synchronized(this) {
+                UserRepository(apiService, userDao).also {
+                    instance = it
+                }
+            }
+        }
+    }
 }
