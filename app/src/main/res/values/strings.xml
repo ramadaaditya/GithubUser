@@ -10,9 +10,10 @@
     <string name="dark_mode">Dark Mode</string>
     <string name="favorite">favorite</string>
     <string name="favorite_title">Favorite User</string>
-    <string name="detailUser">Detail User</string>
+    <string name="detail_title">Detail User</string>
     <string name="favorite_add">Ditambahkan ke Favorite</string>
     <string name="favorite_remove">Dihapus dari Favorite</string>
     <string name="githubuser">GithubUser</string>
     <string name="nullable">null</string>
+    <string name="title_favorite">favorite</string>
 </resources>
