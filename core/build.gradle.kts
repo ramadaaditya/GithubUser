@@ -13,9 +13,10 @@ android {
 
     defaultConfig {
         minSdk = 24
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+        buildConfigField("String", "API_KEY", "\"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\"")
+        buildConfigField("String", "BASEURL", "\"https://api.github.com/\"")
     }
 
     buildFeatures {
