@@ -1,43 +1,26 @@
 package com.dicoding.githubuser.ui.detail
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.dicoding.githubuser.data.ResultState
-import com.dicoding.githubuser.data.local.entity.UserEntity
-import com.dicoding.githubuser.data.remote.response.DetailResponse
-import com.dicoding.githubuser.repository.UserRepository
+import com.dicoding.core.domain.model.User
+import com.dicoding.core.domain.usecase.UserUseCase
 import kotlinx.coroutines.launch
 
-class DetailViewModel(private val repository: UserRepository) : ViewModel() {
-    private val _user = MutableLiveData<ResultState<DetailResponse>>()
-    val user: LiveData<ResultState<DetailResponse>> = _user
-
-    fun getDetailUser(username: String) {
+class DetailViewModel(private val userUseCase: UserUseCase) : ViewModel() {
+    fun getDataByUsername(username: String) = userUseCase.getDataByUsername(username)?.asLiveData()
+    fun getDetailUser(username: String) = userUseCase.getDetailUser(username).asLiveData()
+    fun deleteDataUser(user: User) {
         viewModelScope.launch {
-            try {
-                _user.value = ResultState.Loading
-                val response = repository.getDetailUser(username)
-                _user.value = ResultState.Success(response)
-            } catch (e: Exception) {
-                _user.value =
-                    ResultState.Error("Terjadi kesalahan saat mendapatkan detail user : ${e.message}")
-            }
+            userUseCase.deleteUser(user)
         }
     }
 
-    fun getDataByUsername(username: String) = repository.getDataByUsername(username)
-
-    fun deleteDataUser(user: UserEntity) {
+    fun insertDataUser(user: User) {
         viewModelScope.launch {
-            repository.deleteUser(user)
+            userUseCase.insertUser(user)
         }
     }
-
-    fun insertDataUser(user: UserEntity) {
-        viewModelScope.launch {
-            repository.insertUser(user)
-        }
-    }
+    fun getFollowers(username: String) = userUseCase.getFollowers(username).asLiveData()
+    fun getFollowing(username: String) = userUseCase.getFollowing(username).asLiveData()
 }
