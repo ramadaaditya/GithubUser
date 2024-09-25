@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.android.dynamic.feature)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.android.dynamic-feature")
+    id("org.jetbrains.kotlin.android")
 }
 apply(from = "../shared_dependencies.gradle")
 android {
@@ -33,5 +33,4 @@ android {
 dependencies {
     implementation(project(":app"))
     implementation(project(":core"))
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 }

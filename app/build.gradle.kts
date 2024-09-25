@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
 }
 apply("../shared_dependencies.gradle")
 android {
@@ -27,7 +27,6 @@ android {
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -48,7 +47,5 @@ android {
 
 dependencies {
     implementation(project(":core"))
-    implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
+    implementation("androidx.core:core-splashscreen:1.0.1")
 }
