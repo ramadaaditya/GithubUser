@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
 }
 apply("../shared_dependencies.gradle")
 android {
@@ -47,8 +47,11 @@ android {
 }
 
 dependencies {
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
     implementation(project(":core"))
-    implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
+    implementation("androidx.core:core-splashscreen:1.0.1")
+    //noinspection RiskyLibrary
+    implementation ("com.google.android.play:core:1.10.3")
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation ("org.jetbrains.kotlin:kotlin-stdlib:2.0.20")
 }
