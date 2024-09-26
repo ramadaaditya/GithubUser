@@ -9,4 +9,4 @@
 - Using Koin for DI
 
 #### Continous Integration
-[![ramadaaditya](https://circleci.com/gh/ramadaaditya/GithubUser.svg?style=shield)](https://app.circleci.com/gh/ramadaaditya/GithubUser)
+[![arifaizin](https://circleci.com/gh/arifaizin/MySimpleCleanArchitecture.svg?style=svg)](https://circleci.com/gh/ramadaaditya/GithubUser)
