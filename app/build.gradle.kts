@@ -46,6 +46,11 @@ android {
 }
 
 dependencies {
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
     implementation(project(":core"))
     implementation("androidx.core:core-splashscreen:1.0.1")
+    //noinspection RiskyLibrary
+    implementation ("com.google.android.play:core:1.10.3")
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation ("org.jetbrains.kotlin:kotlin-stdlib:2.0.20")
 }

@@ -5,7 +5,7 @@
     <application>
         <activity
             android:name=".FavoriteActivity"
-            android:exported="false" />
+            android:exported="true"/>
     </application>
     <dist:module
         dist:instant="false"

@@ -10,6 +10,7 @@ jobs:
     environment:
       # Define ANDROID_HOME environment variable
       ANDROID_HOME: /opt/android/sdk
+    executor: android/android
     steps:
       - checkout
       - run:

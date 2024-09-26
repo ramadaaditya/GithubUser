@@ -1,9 +1,7 @@
 package com.dicoding.githubuser.ui.home
 
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -97,7 +95,6 @@ class HomeActivity : AppCompatActivity() {
         try {
             startActivity(Intent(this, Class.forName("com.dicoding.favorite.FavoriteActivity")))
         } catch (e: Exception) {
-            Log.e(TAG, "navigateToFavoriteActivity: $e ", )
             Toast.makeText(this, "Favorite module not found", Toast.LENGTH_SHORT).show()
         }
     }
