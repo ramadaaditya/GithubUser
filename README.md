@@ -8,13 +8,6 @@
 - Implement modularization
 - Using Koin for DI
 
-#### Need more improvement :
+#### Continous Integration
+[![ramadaaditya](https://circleci.com/gh/ramadaaditya/GithubUser.svg?style=shield)](https://app.circleci.com/pipelines/github/ramadaaditya/GithubUser)
 
-- Refactor UI
-- Display more information in detailuser
-- Refactor shared dependency with best practice kotlin dsl
-- Using RecyclerView for adapter
-
-### NB
-
-- Done submission with 3 star :v
